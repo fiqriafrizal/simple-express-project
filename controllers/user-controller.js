@@ -1,4 +1,5 @@
 const { User } = require("../models");
+const bcrypt = require('bcrypt');
 
 const getAllUsers = async (req, res) => {
   try {
@@ -42,13 +43,9 @@ const register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ where: { username: username } });
     if (existingUser) {
-      return res.status(400).json({ message: "Email already in use" });
-    }
-    const existingUsername = await User.findOne({ username });
-    if (existingUsername) {
-      return res.status(400).json({ message: "Username already in use" });
+      return res.status(400).json({ message: "User already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -57,9 +54,9 @@ const register = async (req, res) => {
     res.status(201).json({
       message: "User created successfully",
       data: {
-        id: user._id,
-        username: user.username,
-        email: user.email
+        // id: user._id,
+        // username: user.username,
+        // email: user.email
       }
     });
   } catch (error) {
@@ -68,5 +65,7 @@ const register = async (req, res) => {
 };
 
 module.exports = {
-  getAllUsers
+  getAllUsers,
+  login,
+  register,
 };
