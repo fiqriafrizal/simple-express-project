@@ -1,6 +1,4 @@
 const { Writer } = require("../models");
-const bcrypt = require('bcrypt');
-
 const getAllWriters = async (req, res) => {
   try {
     const writers = await Writer.findAll();
@@ -35,7 +33,7 @@ const createWriter = async (req, res) => {
     const writer = await Writer.create({ name, email, bio });
     res.status(201).json({
       message: "Writer created successfully",
-      data: writer
+      // data: writer
     });
   } catch (error) {
     res.status(500).json({ message: "Error creating writer", error: error.message });

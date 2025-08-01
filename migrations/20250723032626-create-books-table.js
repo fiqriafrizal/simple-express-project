@@ -3,26 +3,35 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('users', {
+    await queryInterface.createTable('books', {
       id: {
-        allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.BIGINT
       },
-      username: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true
-      },
-      email: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true
-      },
-      password: {
+      title: {
         type: Sequelize.STRING,
         allowNull: false
+      },
+      writer_id: {
+        type: Sequelize.BIGINT,
+        allowNull: true,
+        references: {
+          model: 'writers',
+          key: 'id'
+        }
+      },
+      publisher_id: {
+        type: Sequelize.BIGINT,
+        allowNull: true,
+        references: {
+          model: 'publishers',
+          key: 'id'
+        }
+      },
+      pages: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
       },
       created_at: {
         allowNull: false,
@@ -38,6 +47,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('users');
+    await queryInterface.dropTable('books');
   }
 };
