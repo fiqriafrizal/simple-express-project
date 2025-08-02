@@ -22,7 +22,11 @@ module.exports = (sequelize, DataTypes) => {
         },
         publisher_id: {
             type: DataTypes.BIGINT,
-            allowNull: true
+            allowNull: true,
+            references: {
+                model: 'publishers',
+                key: 'id'
+            }
         },
         pages: {
             type: DataTypes.INTEGER,
@@ -36,8 +40,12 @@ module.exports = (sequelize, DataTypes) => {
         updatedAt: 'updated_at'
     });
 
-    Book.associate = function(models) {
-        Book.belongsTo(models.Writer, { foreignKey: 'writer_id', as: 'writer' });
+    Book.associate = function (models) {
+        Book.belongsTo(models.Writer, {
+            foreignKey: 'writer_id',
+            as: 'writer' 
+        });
+        Book.belongsTo(models.Publisher, { foreignKey: 'publisher_id', as: 'publisher' });
     };
 
     return Book;

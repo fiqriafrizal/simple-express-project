@@ -5,7 +5,8 @@ const publisherController = require("../controllers/publiser-controller");
 router.get("/", publisherController.getAllPublishers);
 router.get("/:id", publisherController.getPublisherById);
 router.post("/", publisherController.createPublisher);
-// router.put("/:id", publisherController.updatePublisher);
-// router.delete("/:id", publisherController.deletePublisher);
+router.put("/:id", publisherController.updatePublisher);
+router.delete("/:id", publisherController.deletePublisher);
+
 
 module.exports = router;
