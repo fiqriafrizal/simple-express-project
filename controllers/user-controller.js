@@ -40,26 +40,27 @@ const login = async (req, res) => {
 
 
 const register = async (req, res) => {
+  const transaction = await User.sequelize.transaction();
   try {
     const { username, email, password } = req.body;
 
-    const existingUser = await User.findOne({ where: { username: username } });
+    const existingUser = await User.findOne({ where: { username: username }, transaction });
     if (existingUser) {
+      await transaction.rollback();
       return res.status(400).json({ message: "User already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({ username, email, password: hashedPassword });
+    const user = await User.create({ username, email, password: hashedPassword }, { transaction });
+    await transaction.commit();
 
     res.status(201).json({
       message: "User created successfully",
       data: {
-        // id: user._id,
-        // username: user.username,
-        // email: user.email
       }
     });
   } catch (error) {
+    await transaction.rollback();
     res.status(500).json({ message: "Error creating user", error: error.message });
   }
 };

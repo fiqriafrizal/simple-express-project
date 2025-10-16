@@ -29,42 +29,57 @@ const getBookById = async (req, res) => {
 };
 
 const createBook = async (req, res) => {
+    const transaction = await Book.sequelize.transaction();
     try {
         const { title, author, genre, publicationYear } = req.body;
-        const book = await Book.create({ title, author, genre, publicationYear });
+        const book = await Book.create({ title, author, genre, publicationYear }, { transaction });
+        await transaction.commit();
         res.status(201).json({
             message: "Book created successfully",
             data: book
         });
     } catch (error) {
+        await transaction.rollback();
         res.status(500).json({ message: "Error creating book", error: error.message });
     }
 }
 
 const updateBook = async (req, res) => {
+    const transaction = await Book.sequelize.transaction();
     try {
         const { id } = req.params;
         const { title, author, genre, publicationYear } = req.body;
-        const book = await Book.update({ title, author, genre, publicationYear }, { where: { id } });
+        const book = await Book.findByPk(id, { transaction });
+        if (!book) {
+            await transaction.rollback();
+            return res.status(404).json({ message: "Book not found" });
+        }
+        await book.update({ title, author, genre, publicationYear }, { transaction });
+        await transaction.commit();
         res.json({
             message: "Book updated successfully",
             data: book
         });
     } catch (error) {
+        await transaction.rollback();
         res.status(500).json({ message: "Error updating book", error: error.message });
     }
 }
 
 const deleteBook = async (req, res) => {
+    const transaction = await Book.sequelize.transaction();
     try {
         const { id } = req.params;
-        const book = await Book.findByPk(id);
+        const book = await Book.findByPk(id, { transaction });
         if (!book) {
+            await transaction.rollback();
             return res.status(404).json({ message: "Book not found" });
         }
-        await book.destroy();
+        await book.destroy({ transaction });
+        await transaction.commit();
         res.json({ message: "Book deleted successfully" });
     } catch (error) {
+        await transaction.rollback();
         res.status(500).json({ message: "Error deleting book", error: error.message });
     }
 }
