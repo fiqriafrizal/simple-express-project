@@ -1,3 +1,9 @@
 Needs to be Improved
 1. Handle body input with validation
 2. Consistency of Controller with its attribute
+3. Make it standarization for production.
+
+
+On progress
+Experimenting validation that suitable.
+    purpose: decide a standarize validation

@@ -1,4 +1,8 @@
 const { Writer } = require("../models");
+const Joi = require('joi');
+const { z } = require("zod");
+const { createWriterSchema } = require("../validations/writer.validation");
+
 const getAllWriters = async (req, res) => {
   try {
     const writers = await Writer.findAll();
@@ -28,15 +32,32 @@ const getWriterById = async (req, res) => {
 };
 
 const createWriter = async (req, res) => {
+  const transaction = await Writer.sequelize.transaction();
   try {
-    const { name, email, bio } = req.body;
-    const writer = await Writer.create({ name, email, bio });
+    const userSchema = z.object({
+      name: z.string(),
+      email: z.string(),
+      bio: z.string(),
+    });
+
+    const input = userSchema.safeParse(req.body);
+    if (!input.success) {
+      // await transaction.rollback();
+      const error = error._zod.def;
+      res.status(400).json({ message: input.error.message });
+    }
+    
+    const writer = await Writer.create(req.body, { transaction });
+        // await transaction.commit();
+    
     res.status(201).json({
       message: "Writer created successfully",
-      // data: writer
-    });
+      data: writer
+    }); 
+
   } catch (error) {
-    res.status(500).json({ message: "Error creating writer", error: error.message });
+    await transaction.rollback();
+    res.status(400).json({ message: error.message });
   }
 };
 
